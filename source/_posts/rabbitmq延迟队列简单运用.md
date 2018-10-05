@@ -1,6 +1,6 @@
 ---
 title: rabbitmq延迟队列简单实用
-date: 2018-09-27 22:04:30
+date: 2018-09-26 22:04:30
 categories:
 - 中间件
 tags:

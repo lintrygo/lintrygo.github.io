@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[my]]></title>
+    <url>%2F2020%2F08%2F23%2Fmy%2F</url>
+    <content type="text"><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[数据结构-排序算法]]></title>
+    <url>%2F2018%2F11%2F05%2F%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%2F</url>
+    <content type="text"><![CDATA[排序算法 插入排序（直接插入；折半插入；希尔插入） 选择排序（简单选择排序；堆排序） 交换排序 (冒泡排序；快速排序) 归并排序 基数排序 外部排序 冒泡排序两两比较相邻元素，每趟冒泡的结果是把序列中的最大元素放到了序列中的最终位置123456789101112public void bubbleSort(int[] array)&#123; int temp; for (int i = 0; i &lt; array.length ; i++) &#123; for (int j = 0; j &lt; array.length-1-i ; j++) &#123; if(array[j]&lt;array[j+1])&#123; temp = array[j]; array[j] = array[j+1]; array[j+1] = temp; &#125; &#125; &#125;&#125; 快速排序快速排序是冒泡排序的一种改进。基本思想是:通过一趟排序将要排序的数据分割成独立的两部分，其中一部分的所有数据都比另一部分的所有数据小，然后再按此方法对这两部分数据分别进行快速排序，整个排序过程可以递归进行，已达到整个序列变成有序序列。 123456789101112131415161718192021222324public void quickSort(int[] array,int low,int high)&#123; if(low&lt;high)&#123; int index = getIndex(array,low,high); quickSort(array,low,index-1); quickSort(array,index+1,high); &#125; &#125; public int getIndex(int[] array,int low,int high)&#123; int temp = array[low]; while (low&lt;high)&#123; while(low&lt;high &amp;&amp; array[high]&gt;temp)&#123; high--; &#125; array[low] = array[high]; while (low&lt;high &amp;&amp; array[low]&lt;temp)&#123; low++; &#125; array[high] = array[low]; &#125; array[low] = temp; return low; &#125; 直接插入排序基本思想：每一步将一个待排序的数据插入到前面已经排好序的有序序列中，直到插完所有元素为止。 12345678910public void insertSort(int[] array)&#123; int j; for (int i = 1; i &lt;array.length ; i++) &#123; int temp = array[i]; for (j = i-1; j&gt;=0 &amp;&amp; temp&lt;array[j] ; j--) &#123; array[j+1] = array[j]; &#125; array[j+1] = temp; &#125; &#125; 希尔排序思想和直接插入类似，只是引入增量的概念，又称缩小增量排序 123456789101112public void shellSort(int[] array)&#123; int j; for(int gap = array.length/2;gap&gt;0;gap/=2)&#123; for(int i = gap;i&lt;array.length;i++)&#123; int temp = array[i]; for(j = i-gap;j&gt;=0&amp;&amp;temp&lt;array[j];j-=gap)&#123; array[j+gap] = array[j]; &#125; array[j+gap] = temp; &#125; &#125; &#125; 选择排序假设排序表为L[1…n],第i趟排序即从L[i…n]中选择关键字最小的元素与L(i)交换，每一趟排序可以确认一个元素的最终位置,这样经过n-1趟排序就可使整个排序表有序。 12345678910111213141516171819public void selectSort(int[] array)&#123; int minValue; int minIndex; for (int i = 0; i &lt; array.length; i++) &#123; minValue = array[i]; minIndex = i; for (int j = i+1; j &lt;array.length ; j++) &#123; if(minValue&gt;array[j])&#123; minValue = array[j]; minIndex = j; &#125; &#125; //交换最小值 if(minValue!=array[i])&#123; array[minIndex] = array[i]; array[i] = minValue; &#125; &#125; &#125; 归并排序采用分治的思想，分成一些小问题递归求解。将数组元素一个个分成独立元素，再两两合并，以此类推得到完整的有序序列。1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253public void mergeSortTest()&#123; int[] array = &#123;10,9,8,7,6,5&#125;; int[] temp = new int[array.length]; mergeSort(array,0,array.length-1,temp); System.out.println(Arrays.toString(array)); &#125; public void mergeSort(int[] array,int left,int right,int[] temp)&#123; if(left&lt;right)&#123; int mid = (left+right)/2; mergeSort(array,left,mid,temp); mergeSort(array,mid+1,right,temp); merge(array,left,mid,right,temp); &#125; &#125; public void merge(int[] array,int left ,int mid,int right,int[] temp)&#123; int i = left; int j = mid+1; int t = 0; while (i&lt;=mid &amp;&amp; j&lt;=right)&#123; if(array[j]&lt;array[i])&#123; temp[t] = array[j]; j++; &#125;else&#123; temp[t] = array[i]; i++; &#125; t++; &#125; while (i&lt;=mid)&#123; temp[t] = array[i]; i++; t++; &#125; while (j&lt;=right)&#123; temp[t] = array[j]; j++; t++; &#125; //合并 t = 0 ; while (left&lt;=right)&#123; array[left] = array[t]; left++; t++; &#125; &#125; 基数排序基数排序(Radix Sort)是桶排序的扩展，它的基本思想是：将整数按位数切割成不同的数字，然后按每个位数分别比较。具体做法是：将所有待比较数值统一为同样的数位长度，数位较短的数前面补零。然后，从最低位开始，依次进行一次排序。这样从最低位排序一直到最高位排序完成以后, 数列就变成一个有序序列。 1234567891011121314151617181920212223242526272829303132333435public void radixSortTest(int[] array)&#123; //求最大值 int maxValue = array[0]; for(int value:array)&#123; if(value&gt;maxValue)&#123; maxValue = value; &#125; &#125; //求最大值位数 int digit = (maxValue+&quot;&quot;).length(); //桶数量 int[][] buckets = new int[10][array.length]; //每个桶计数 int[] bucketNum = new int[10]; for(int i = 0,n = 1;i&lt;digit;i++,n*=10)&#123; //元素放入桶中 for(int j=0;j&lt;array.length;j++)&#123; int digitValue = array[j]/n%10; buckets[digitValue][bucketNum[digitValue]] = array[j]; bucketNum[digitValue]++; &#125; int index = 0; //将元素放入回数组中 for (int k = 0; k &lt;bucketNum.length ; k++) &#123; if(bucketNum[k]!=0)&#123; for(int l = 0;l&lt;bucketNum[k];l++)&#123; array[index++] = buckets[k][l]; &#125; &#125; bucketNum[k] = 0; &#125; &#125; &#125; 排序算法比较]]></content>
+      <categories>
+        <category>数据结构</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[过滤器ip白名单]]></title>
+    <url>%2F2018%2F10%2F08%2F%E8%BF%87%E6%BB%A4%E5%99%A8ip%E7%99%BD%E5%90%8D%E5%8D%95%2F</url>
+    <content type="text"><![CDATA[Filter中注入Bean失败在写这个过滤器的时候遇到个问题,Bean注入失败，为空，以前也没有注意到。 原理其实Spring中，web应用启动的顺序是：listener-&gt;filter-&gt;servlet，先初始化listener，然后再来就filter的初始化，再接着才到我们的dispathServlet的初始化，因此，当我们需要在filter里注入一个注解的bean时，就会注入失败，因为filter初始化时，注解的bean还没初始化，没法注入。 解决方式解决方式有好几种我用的是手动getBean的方式12ApplicationContext ac1 = WebApplicationContextUtils.getRequiredWebApplicationContext(ServletContext sc); ac1.getBean(&quot;beanId&quot;); 这里getBean内容注意大小写，经常因为没注意没获取到bean。 获取登录ip12345678910111213141516171819202122232425/** * 通过HttpServletRequest返回IP地址 * @param request HttpServletRequest * @return ip String * @throws Exception */ public String getIpAddr(HttpServletRequest request) throws Exception &#123; String ip = request.getHeader(&quot;x-forwarded-for&quot;); if (ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip)) &#123; ip = request.getHeader(&quot;Proxy-Client-IP&quot;); &#125; if (ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip)) &#123; ip = request.getHeader(&quot;WL-Proxy-Client-IP&quot;); &#125; if (ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip)) &#123; ip = request.getHeader(&quot;HTTP_CLIENT_IP&quot;); &#125; if (ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip)) &#123; ip = request.getHeader(&quot;HTTP_X_FORWARDED_FOR&quot;); &#125; if (ip == null || ip.length() == 0 || &quot;unknown&quot;.equalsIgnoreCase(ip)) &#123; ip = request.getRemoteAddr(); &#125; return ip; &#125;]]></content>
+      <tags>
+        <tag>spring</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[jenkins初步使用]]></title>
+    <url>%2F2018%2F10%2F05%2Fjenkins%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8%2F</url>
+    <content type="text"><![CDATA[linux环境下安装jenkins1.第一种是网上下载jenkins war包拷到/webapp目录下2.第二种是在线安装,通过yum方式安装下载sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.reposudo rpm –import https://jenkins-ci.org/redhat/jenkins-ci.org.keysudo yum install jenkins 启动jenkinsservice jenkins start 注意:这里最好修改jenkins默认端口号8080，以防冲突vi /etc/sysconfig/jenkins查找/JENKINS_PORT，修改JENKINS_PORT=”8080”，默认为“8080”，我修改为了9999## 访问jenkins地址:http://ip:修改后的端口号第一次登录是需要解锁，依据提示的路径,拷贝相应的密码到浏览器输入框。之后提示安装自定义插件还是推荐插件，此处我选择推荐插件注意：这里，可能是由于网络的原因，我的一些插件迟迟下载不下来，页面卡死在下载插件那里，我就强制重启jenkins。ps -ef|grep jenkins,找出相应的jenklins进程，杀死进程：kill 进程号，之后重启jenkins,service jenkins start，重新访问，便可以进入到主界面，依据提示设置用户名密码那些。 后续jenkins各项操作陆续更新。。。。]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>jenkins</tag>
+        <tag>自动化部署</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[rabbitmq延迟队列简单实用]]></title>
+    <url>%2F2018%2F09%2F26%2Frabbitmq%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97%E7%AE%80%E5%8D%95%E8%BF%90%E7%94%A8%2F</url>
+    <content type="text"><![CDATA[&nbsp; &nbsp; &nbsp; &nbsp;之前也没有具体研究过rabbitmq延迟队列的实现，前段时间在写短信提醒用户支付订单这个需求的时候，发现了一些问题。现有的商城系统，订单取消定时器是5分钟跑一次，这样就造成了会有5分钟的时间误差，前端给用户的提示以及后续的操作都会有影响。而且这种定时器一直跑着还是挺消耗系统资源的，增加数据库压力 &nbsp; &nbsp; &nbsp; &nbsp;然后也是一直查阅资料看看有什么更好的解决方案，看到这本《Rabbitmq实战指南》写还的挺好的，通俗易懂，里面也简单介绍了延迟队列。 什么是延迟队列&nbsp; &nbsp; &nbsp; &nbsp;延迟队列存储的对象肯定是对应的延迟消息，所谓”延迟消息”是指当消息被发送以后，并不想让消费者立即拿到消息，而是等待指定时间后，消费者才拿到这个消息进行消费。其实，AMQP协议，以及RabbitMQ本身没有直接支持延迟队列的功能，但是可以通过TTL和DLX模拟出延迟队列的功能。 过期时间TTLTTL(Time To Live),即过期时间,RabbitMQ可以对消息和队列设置过期时间。消息在队列中的生存时间一旦超过了设置的TTL值，就会变为死信。 设置消息的TTL1234byte[] messageBodyBytes = &quot;Hello, world!&quot;.getBytes();AMQP.BasicProperties properties = new AMQP.BasicProperties();properties.setExpiration(&quot;60000&quot;);//设置消息的过期时间为60秒channel.basicPublish(&quot;my-exchange&quot;, &quot;routing-key&quot;, properties, messageBodyBytes); 设置队列的TTL123Map&lt;String, Object&gt; args = new HashMap&lt;String, Object&gt;();args.put(&quot;x-expires&quot;, 1800000);channel.queueDeclare(&quot;myqueue&quot;, false, false, false, args); DLX死信队列1234567891011Dead Letter Exchanges,可以称为死信交换器channel.exchangeDeclare(&quot;exchange_delay_begin&quot;, &quot;direct&quot;, true);channel.exchangeDeclare(&quot;exchange_delay_done&quot;, &quot;direct&quot;, true);Map&lt;String, Object&gt; args = new HashMap&lt;String, Object&gt;();args.put(&quot;x-dead-letter-exchange&quot;, &quot;exchange_delay_done&quot;);channel.queueDeclare(&quot;queue_delay_begin&quot;, true, false, false, args);channel.queueDeclare(&quot;queue_delay_done&quot;, true, false, false, null);channel.queueBind(&quot;queue_delay_begin&quot;, &quot;exchange_delay_begin&quot;, &quot;delay&quot;);channel.queueBind(&quot;queue_delay_done&quot;, &quot;exchange_delay_done&quot;, &quot;delay&quot;); 这些内容我写的还是比较简单，后续会进一步的完善。建议阅读官方文档http://www.rabbitmq.com/ttl.html#per-queue-message-ttl，或者上面提到的《RabbitMQ实战指南》,整个延迟队列的实现过程还是比较简单的，之后会把完整的代码贴出来。]]></content>
+      <categories>
+        <category>中间件</category>
+      </categories>
+      <tags>
+        <tag>rabbitmq</tag>
+        <tag>消息队列</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[和喜欢的一切在一起]]></title>
+    <url>%2F2018%2F09%2F24%2F%E5%92%8C%E5%96%9C%E6%AC%A2%E7%9A%84%E4%B8%80%E5%88%87%E5%9C%A8%E4%B8%80%E8%B5%B7%2F</url>
+    <content type="text"><![CDATA[浮光再潋滟，淌不过流年。但纵使往事如烟，依然感谢你有缘在我生命中昙花一现。 这世界最美妙最浪漫的事就是做着自己喜欢的事还可以养活自己。 忘了谁说过，陪伴是最长情的告白。但我想说，守护使最沉默的陪伴。亲情，友情，爱情，但凡是感情想要长久都一样，就两句话：别听对方说什么，只看对方做什么；别在意对方没做什么，只在意对方付出了什么。这世上没人欠你什么，你也不欠别人什么，一切凭心。所谓珍惜，不是小心翼翼，而是自然反应。 也许故事没有那么多失忆，但柳暗花明的香味依旧最袭人。 北漂三年，最害怕行李箱的万向轮龇着地面时发出的哗啦。 但如果命运这么好掌握，那就不叫命运了 东西坏了，别想到丢，试试看能不能修。我们都一样，拥有的东西很少，别等到什么都没了，才学会哭。 活在一种看得见未来的生活里是很无趣的，尽管我知道每个人都有一个共同的结局是死亡，但如果我们活着的每一天都不能有所发现，没有未知和好奇，而只是机械地重复同样的事情，那等于我们已经死了。 在这个散乱的世界，每个人都在表达自己，却独独少了那位坐在对面,认真聆听，静静端详着你的听众。 许多人来来去去，相聚又别离。也有人匆匆逃离，这一个人的北京。]]></content>
+      <categories>
+        <category>杂书</category>
+      </categories>
+      <tags>
+        <tag>读后感</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[hexo实现搜索,评论功能]]></title>
+    <url>%2F2018%2F09%2F24%2Fhexo%E5%AE%9E%E7%8E%B0%E6%90%9C%E7%B4%A2-%E8%AF%84%E8%AE%BA%E5%8A%9F%E8%83%BD%2F</url>
+    <content type="text"></content>
+      <categories>
+        <category>hexo博客实现</category>
+      </categories>
+      <tags>
+        <tag>博客</tag>
+      </tags>
+  </entry>
+</search>

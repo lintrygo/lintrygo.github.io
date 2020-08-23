@@ -27,6 +27,6 @@ vi /etc/sysconfig/jenkins<br>
 之后提示安装自定义插件还是推荐插件，此处我选择推荐插件<br>
 <font color="Chocolate">注意：这里，可能是由于网络的原因，我的一些插件迟迟下载不下来，页面卡死在下载插件那里，我就强制重启jenkins。ps -ef|grep jenkins,找出相应的jenklins进程，杀死进程：kill 进程号，之后重启jenkins,service jenkins start，重新访问，便可以进入到主界面，依据提示设置用户名密码那些。</font>
 
-![image](jenkins初步使用/jenkins.png)
+![image](image/jenkins.png)
 
 后续jenkins各项操作陆续更新。。。。

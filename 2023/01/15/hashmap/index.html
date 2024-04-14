@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="HashMapHashMap(jdk1.7)数据结构:数组+链表 12345678910111213141516171819/**     * The default initial capacity - MUST be a power of two.     * table(数组)默认初始容量16，必须是2的n次方     */    static final int DEFAULT_INITI">
+<meta name="keywords" content="集合">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HashMap原理">
+<meta property="og:url" content="http://yoursite.com/2023/01/15/hashmap/index.html">
+<meta property="og:site_name" content="WuHao">
+<meta property="og:description" content="HashMapHashMap(jdk1.7)数据结构:数组+链表 12345678910111213141516171819/**     * The default initial capacity - MUST be a power of two.     * table(数组)默认初始容量16，必须是2的n次方     */    static final int DEFAULT_INITI">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2024-04-14T03:05:30.032Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HashMap原理">
+<meta name="twitter:description" content="HashMapHashMap(jdk1.7)数据结构:数组+链表 12345678910111213141516171819/**     * The default initial capacity - MUST be a power of two.     * table(数组)默认初始容量16，必须是2的n次方     */    static final int DEFAULT_INITI">
+
+<link rel="canonical" href="http://yoursite.com/2023/01/15/hashmap/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>HashMap原理 | WuHao</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">WuHao</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2023/01/15/hashmap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/image/image01.jpg">
+      <meta itemprop="name" content="zhengwuhao">
+      <meta itemprop="description" content="stay hungry stay foolish">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WuHao">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HashMap原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-01-15 13:55:15" itemprop="dateCreated datePublished" datetime="2023-01-15T13:55:15+08:00">2023-01-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-04-14 11:05:30" itemprop="dateModified" datetime="2024-04-14T11:05:30+08:00">2024-04-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index"><span itemprop="name">java基础</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h1><h1 id="HashMap-jdk1-7"><a href="#HashMap-jdk1-7" class="headerlink" title="HashMap(jdk1.7)"></a>HashMap(jdk1.7)</h1><p><strong>数据结构</strong>:数组+链表</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">     * The default initial capacity - MUST be a power of two.</span><br><span class="line">     * table(数组)默认初始容量16，必须是2的n次方</span><br><span class="line">     */</span><br><span class="line">    static final int DEFAULT_INITIAL_CAPACITY = 1 &lt;&lt; 4; // aka 16</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * The maximum capacity, used if a higher value is implicitly specified</span><br><span class="line">     * by either of the constructors with arguments.</span><br><span class="line">     * MUST be a power of two &lt;= 1&lt;&lt;30.</span><br><span class="line">     * table(数组)最大容量2的32次方</span><br><span class="line">     */</span><br><span class="line">    static final int MAXIMUM_CAPACITY = 1 &lt;&lt; 30;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * The load factor used when none specified in constructor.</span><br><span class="line">     * 默认负载因子0.75</span><br><span class="line">     */</span><br><span class="line">    static final float DEFAULT_LOAD_FACTOR = 0.75f;</span><br></pre></td></tr></table></figure>
+<p>懒加载方式，不在构造方法中创建容量，只在第一次put操作中创建。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">public V put(K key, V value) &#123;</span><br><span class="line">        //若为空数组,则初始化数组，默认为16</span><br><span class="line">        if (table == EMPTY_TABLE) &#123;</span><br><span class="line">            inflateTable(threshold);</span><br><span class="line">        &#125;</span><br><span class="line">        //当key为null是,存储位置为table[0]或table[0]的冲突链上</span><br><span class="line">        if (key == null)</span><br><span class="line">            return putForNullKey(value);</span><br><span class="line">        //计算hash值</span><br><span class="line">        int hash = hash(key);</span><br><span class="line">        //根据hash值,定位在数组中的位置</span><br><span class="line">        int i = indexFor(hash, table.length);</span><br><span class="line">        //循环查找该数组中的链表，查找到，则覆盖，并返回旧值</span><br><span class="line">        for (Entry&lt;K,V&gt; e = table[i]; e != null; e = e.next) &#123;</span><br><span class="line">            Object k;</span><br><span class="line">            if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;</span><br><span class="line">                V oldValue = e.value;</span><br><span class="line">                e.value = value;</span><br><span class="line">                e.recordAccess(this);</span><br><span class="line">                return oldValue;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        //保证并发访问时，若HashMap内部结构发生变化，快速响应失败</span><br><span class="line">        modCount++;</span><br><span class="line">        //新增一个entry</span><br><span class="line">        addEntry(hash, key, value, i);</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">//膨胀数组</span><br><span class="line">private void inflateTable(int toSize) &#123;</span><br><span class="line">        //找到一个大于等于的最接近toSize的二次幂</span><br><span class="line">        // Find a power of 2 &gt;= toSize</span><br><span class="line">        int capacity = roundUpToPowerOf2(toSize);</span><br><span class="line"></span><br><span class="line">        threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);</span><br><span class="line">        table = new Entry[capacity];</span><br><span class="line">        initHashSeedAsNeeded(capacity);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">private static int roundUpToPowerOf2(int number) &#123;</span><br><span class="line">    // assert number &gt;= 0 : &quot;number must be non-negative&quot;;</span><br><span class="line">    return number &gt;= MAXIMUM_CAPACITY</span><br><span class="line">            ? MAXIMUM_CAPACITY</span><br><span class="line">            : (number &gt; 1) ? Integer.highestOneBit((number - 1) &lt;&lt; 1) : 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">final int hash(Object k) &#123;</span><br><span class="line">        int h = hashSeed;</span><br><span class="line">        if (0 != h &amp;&amp; k instanceof String) &#123;</span><br><span class="line">            return sun.misc.Hashing.stringHash32((String) k);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        h ^= k.hashCode();</span><br><span class="line"></span><br><span class="line">        // This function ensures that hashCodes that differ only by</span><br><span class="line">        // constant multiples at each bit position have a bounded</span><br><span class="line">        // number of collisions (approximately 8 at default load factor).</span><br><span class="line">        h ^= (h &gt;&gt;&gt; 20) ^ (h &gt;&gt;&gt; 12);</span><br><span class="line">        return h ^ (h &gt;&gt;&gt; 7) ^ (h &gt;&gt;&gt; 4);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//通过hash值定位到数组位置,哈希值和数组长度&amp;运算。</span><br><span class="line">static int indexFor(int h, int length) &#123;</span><br><span class="line">    // assert Integer.bitCount(length) == 1 : &quot;length must be a non-zero power of 2&quot;;</span><br><span class="line">    return h &amp; (length-1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="hashmap为什么数组长度是2的幂次方"><a href="#hashmap为什么数组长度是2的幂次方" class="headerlink" title="hashmap为什么数组长度是2的幂次方"></a>hashmap为什么数组长度是2的幂次方</h2><p>为了能让HashMap存取高效，尽量减少碰撞，也就是要尽量把数据分配均匀。首先想到的是取余运算即 hash%length，取余操作中如果除数是2的幂次则等价于其除数减一的与操作，也就是说hash%length=hash&amp;(length-1)，对于%运算来说，&amp;运算效率更高，故解释了hashmap为什么长度是的n次幂</p>
+<p><strong>为什么&amp;效率更高</strong></p>
+<p>因为位运算直接对内存数据进行操作，不需要转成十进制，所以位运算要比取模运算的效率更高</p>
+<p><strong>当length为2的N次方的时候，数据分布均匀，减少冲突</strong></p>
+<p>2的n次方-1转换成二进制，值全是1，保证了数据分布均匀；若是奇数，最后一位永远是0，这样，空间的减少会导致碰撞几率的进一步增加，从而就会导致查询速度慢。</p>
+<h2 id="hashmap多线程死循环问题"><a href="#hashmap多线程死循环问题" class="headerlink" title="hashmap多线程死循环问题"></a>hashmap多线程死循环问题</h2><p>在jdk 1.7 中hashmap扩容rehash时，使用头插法，多线程操作可能导致形成循环链表，之后再进件get操作时可能引发死循环，造成cpu 100%。在jdk1.8中，把头插法修改为尾插法，修复了该问题。</p>
+<p><a href="https://coolshell.cn/articles/9606.html" target="_blank" rel="noopener">具体步骤</a></p>
+<h2 id="hashmap底层结构"><a href="#hashmap底层结构" class="headerlink" title="hashmap底层结构"></a>hashmap底层结构</h2><p>jdk7：数组+链表</p>
+<p>jdk8: 数组+链表或红黑树</p>
+<p><strong>为什么使用红黑树</strong></p>
+<p>jdk7中，可能由于hash碰撞导致链表会很长，造成查询效率会低；在jdk8中，当链表长度大于等于8且元素个数大于64时会转换成红黑树，查询效率由O(n)提升到O(logn)</p>
+<h2 id="hashmap重要参数"><a href="#hashmap重要参数" class="headerlink" title="hashmap重要参数"></a>hashmap重要参数</h2><p>初始容量: 创建哈希表(数组)时桶的数量，默认为 16</p>
+<p>负载因子: 临界值 = 数组容量*负载因子，当超过临界值时，会自动扩容，还需要对原来元素进行rehash，分配到不同桶中。</p>
+<h2 id="hash算法"><a href="#hash算法" class="headerlink" title="hash算法"></a>hash算法</h2><p>jdk8: (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16) ，相当于hashcode的高16位和低16位异或运算</p>
+<p>可以将高低位二进制特征混合起来；异或运算能更好的保留各部分的特征</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/集合/" rel="tag"># 集合</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/05/P转M(0605微课向上管理)/" rel="prev" title="P转M(0605微课向上管理)">
+      <i class="fa fa-chevron-left"></i> P转M(0605微课向上管理)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/05/分布式事务/" rel="next" title="分布式事务">
+      分布式事务 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HashMap"><span class="nav-number">1.</span> <span class="nav-text">HashMap</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HashMap-jdk1-7"><span class="nav-number">2.</span> <span class="nav-text">HashMap(jdk1.7)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hashmap为什么数组长度是2的幂次方"><span class="nav-number">2.1.</span> <span class="nav-text">hashmap为什么数组长度是2的幂次方</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hashmap多线程死循环问题"><span class="nav-number">2.2.</span> <span class="nav-text">hashmap多线程死循环问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hashmap底层结构"><span class="nav-number">2.3.</span> <span class="nav-text">hashmap底层结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hashmap重要参数"><span class="nav-number">2.4.</span> <span class="nav-text">hashmap重要参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hash算法"><span class="nav-number">2.5.</span> <span class="nav-text">hash算法</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="zhengwuhao"
+      src="/image/image01.jpg">
+  <p class="site-author-name" itemprop="name">zhengwuhao</p>
+  <div class="site-description" itemprop="description">stay hungry stay foolish</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhengwuhao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

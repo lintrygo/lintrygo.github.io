@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一 、基础语法Golang: 编码风格及可见域规则严格且简单；Java: 来说层次接口清晰、规范 1、变量a、变量声明及使用在Java中：变量可以声明了却不使用 public static String toString(int num) {      int data = num;      return String.valueOf(num);  }  Golang中：声明的变量必须被使用（否">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go和Java对比（基本语法）">
+<meta property="og:url" content="http://yoursite.com/2024/04/14/go和java对比（基本语法）/index.html">
+<meta property="og:site_name" content="WuHao">
+<meta property="og:description" content="一 、基础语法Golang: 编码风格及可见域规则严格且简单；Java: 来说层次接口清晰、规范 1、变量a、变量声明及使用在Java中：变量可以声明了却不使用 public static String toString(int num) {      int data = num;      return String.valueOf(num);  }  Golang中：声明的变量必须被使用（否">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2024-04-14T10:49:12.863Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="go和Java对比（基本语法）">
+<meta name="twitter:description" content="一 、基础语法Golang: 编码风格及可见域规则严格且简单；Java: 来说层次接口清晰、规范 1、变量a、变量声明及使用在Java中：变量可以声明了却不使用 public static String toString(int num) {      int data = num;      return String.valueOf(num);  }  Golang中：声明的变量必须被使用（否">
+
+<link rel="canonical" href="http://yoursite.com/2024/04/14/go和java对比（基本语法）/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>go和Java对比（基本语法） | WuHao</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">WuHao</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/04/14/go和java对比（基本语法）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/image/image01.jpg">
+      <meta itemprop="name" content="zhengwuhao">
+      <meta itemprop="description" content="stay hungry stay foolish">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WuHao">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go和Java对比（基本语法）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-04-14 22:06:22 / 修改时间：18:49:12" itemprop="dateCreated datePublished" datetime="2024-04-14T22:06:22+08:00">2024-04-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一-、基础语法"><a href="#一-、基础语法" class="headerlink" title="一 、基础语法"></a>一 、基础语法</h2><p>Golang: 编码风格及可见域规则严格且简单；Java: 来说层次接口清晰、规范</p>
+<h3 id="1、变量"><a href="#1、变量" class="headerlink" title="1、变量"></a>1、变量</h3><h4 id="a、变量声明及使用"><a href="#a、变量声明及使用" class="headerlink" title="a、变量声明及使用"></a>a、变量声明及使用</h4><p>在Java中：变量可以声明了却不使用</p>
+<pre><code>public static String toString(int num) { 
+    int data = num; 
+    return String.valueOf(num); 
+} 
+</code></pre><p>Golang中：声明的变量必须被使用（否则会编译报错），否则需要使用_来替代掉变量名，表明该变量不会使用到</p>
+<pre><code>func toString(num int) string {
+    data := num     // data没有使用者，无法编译
+    return num
+}
+
+func toString(num int) string {
+    _ := num          // 正常编译
+    return num
+}
+</code></pre><h4 id="b、变量声明及初始化"><a href="#b、变量声明及初始化" class="headerlink" title="b、变量声明及初始化"></a>b、变量声明及初始化</h4><p>在Java中：如果在方法内部声明一个变量但不初始化，在使用时会出现编译错误；</p>
+<pre><code>public void compareVariable() {
+        int age;
+        Object object;
+        System.out.println(age); // 编译错误
+        System.out.println(object); // 编译错误
+}
+</code></pre><p>在Golang中：对于基本类型来讲，声明即初始化，默认为0;对于引用类型，声明则初始化为nil。</p>
+<pre><code>func compareVariable() {
+    var age int
+    var hashMap *map[string]int
+    fmt.Println(num) // num = 0
+    fmt.Println(hashMap) //  &amp;hashMap== nil
+}。
+</code></pre><h3 id="2、作用域规则"><a href="#2、作用域规则" class="headerlink" title="2、作用域规则"></a>2、作用域规则</h3><p>Java: 对方法、变量及类的可见域规则是通过private、protected、public关键字来控制的</p>
+<p>Golang: 控制可见域的方式只有一个，当字段首字母开头是大写时说明其是对外可见的、小写时只对包内成员可见。</p>
+<h3 id="3、逗号-ok-模式"><a href="#3、逗号-ok-模式" class="headerlink" title="3、逗号 ok 模式"></a>3、逗号 ok 模式</h3><p>在使用Golang编写代码的过程中，许多方法经常在一个表达式返回2个参数时使用这种模式：,ok，第一个参数是一个值或者nil，第二个参数是true/false或者一个错误error。在一个需要赋值的if条件语句中，使用这种模式去检测第二个参数值会让代码显得优雅简洁。这种模式在Golang编码规范中非常重要。这是Golang自身的函数多返回值特性的体现。例如：</p>
+<pre><code>if _, ok := conditionMap[&quot;page&quot;]; ok {
+      //
+} 
+</code></pre><h3 id="4、结构体、函数以及方法"><a href="#4、结构体、函数以及方法" class="headerlink" title="4、结构体、函数以及方法"></a>4、结构体、函数以及方法</h3><h4 id="a、结构体声明及使用"><a href="#a、结构体声明及使用" class="headerlink" title="a、结构体声明及使用"></a>a、结构体声明及使用</h4><p>在Golang中区别与Java最显著的一点是，Golang不存在“类”这个概念，组织数据实体的结构在Golang中被称为结构体。函数可以脱离“类”而存在，函数可以依赖于结构体来调用或者依赖于包名调用。Golang中的结构体放弃了继承、实现等多态概念，结构体之间可使用组合来达到复用方法或者字段的效果</p>
+<p>Golang 声明一个结构体并使用：</p>
+<pre><code>// User  定义User结构体
+type User struct {
+    Name string
+    Age  int
+}
+
+// 使用一个结构体
+func main() {
+    personPoint := new(User) // 通过new方法创建结构体指针
+    person1 := User{}        // 通过Person{}创建默认字段的结构体
+    person2 := User{
+        Name: &quot;zwh5&quot;,
+        Age:  zwh5,
+    }
+    fmt.Println(personPoint) // &amp;{ 0 }
+    fmt.Println(person1)     // { 0 }
+    fmt.Println(person2)     // {xiaoHong 21 }
+}
+</code></pre><p>Java声明实体并使用：</p>
+<pre><code>class User {
+    private String name;
+    private int age;
+
+    public User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+    public String getName() {
+        return name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public String print() {
+        return &quot;{name = &quot; + name + &quot;,age = &quot; + age + &quot;}&quot;;
+    }
+}
+
+public class Demo {
+    public static void main(String[] args) {
+        User user = new User(&quot;zwh5&quot;, 28);
+        System.out.println(&quot;user信息：&quot; + user.print());   
+    }
+}
+//执行结果
+user信息：{name = zwh5,age = 28}
+</code></pre><h4 id="b、函数和方法的区别"><a href="#b、函数和方法的区别" class="headerlink" title="b、函数和方法的区别"></a>b、函数和方法的区别</h4><p>在Java中：所有的“函数”都是基于“类”这个概念构建的，也就是只有在“类”中才会包含所谓的“函数”，这里的“函数”被称为“方法”，可见上方声明实体并使用。</p>
+<p>在Golang中：“函数”和“方法”的最基本区别是：函数不基于结构体而是基于包名调用，方法基于结构体调用。如下实例：</p>
+<pre><code>package entity
+
+import &quot;fmt&quot;
+
+type User struct {
+    Name string
+    Age  int
+}
+
+// User结构体/指针可调用的&quot;方法&quot;，属于User结构体
+func (user *User) Solve() {
+    fmt.Println(user)
+}
+
+// 任何地方都可调用的&quot;函数&quot;，不属于任何结构体，可通过entity.Solve调用
+func Solve(user *User) {
+    fmt.Println(user)
+}
+
+
+func main() {
+    userPoint := new(entity.User) // 通过new方法创建结构体指针
+    entity.Solve(userPoint) // 函数调用
+    userPoint.Solve()       // 方法调用
+}
+</code></pre><h3 id="5、值类型、引用类型以及指针"><a href="#5、值类型、引用类型以及指针" class="headerlink" title="5、值类型、引用类型以及指针"></a>5、值类型、引用类型以及指针</h3><p>Java：在Java中不存在显式的指针操作；8种基本数据类型是值类型，数组和对象属于引用类型。<br>Golang：而Golang中存在显式的指针操作，但是Golang的指针不像C那么复杂，不能进行指针运算；所有的基本类型都属于值类型，但是有几个类型比较特殊，表现出引用类型的特征，分别是slice、map、channel、interface，除赋值以外它们都可以当做引用类型来使用，因此当我们这样做时,可以直接使用变量本身而不用指针。<br>注：slice与数组的区别为是否有固定长度，slice无固定长度，数组有固定长度。值得注意的是，在Golang中，只有同长度、同类型的数组才可视为“同一类型”，譬如[]int和[3]int则会被视为不同的类型，这在参数传递的时候会造成编译错误。</p>
+<h4 id="a、数组对比"><a href="#a、数组对比" class="headerlink" title="a、数组对比"></a>a、数组对比</h4><p>在Java中：当向方法中传递数组时，可以直接通过该传入的数组修改原数组内部值（浅拷贝）。<br>在Golang中：则有两种情况：在不限定数组长度(为slice)时也直接改变原数组的值，当限定数组长度时会完全复制出一份副本来进行修改（深拷贝）：</p>
+<p>Java的数组实践:</p>
+<pre><code>public static void main(String[] args) {
+        int[] array = {1, 2, 3};
+        change(array);
+        System.out.println(Arrays.toString(array)); // -1,2,3
+    }
+
+    private static void change(int[] array) {
+        array[0] = -1;
+    }
+</code></pre><p>Golang的数组实践:</p>
+<pre><code>//  不限定长度（即slice）:
+func main() {
+    var array = []int{1, 2, 3}
+    change(array)
+    fmt.Println(array)    // [-1 2 3]
+}
+
+func change(array []int) {
+    array[0] = -1
+}
+</code></pre><!---->
+<pre><code>//  限定长度（即数组）： 
+func main() {
+    var array = [3]int{1, 2, 3}
+    change(array)
+    fmt.Println(array)    //[1 2 3]
+}
+
+func change(array [3]int) {
+    array[0] = -1
+} 
+</code></pre><h3 id="b、对象对比"><a href="#b、对象对比" class="headerlink" title="b、对象对比"></a>b、对象对比</h3><p>在Golang中：传入函数参数的是原对象的一个全新的copy（有自己的内存地址）;go对象之间赋值是把对象内存的 内容（字段值等） copy过去，所以才会看到globalUser修改前后的地址不变，但是对象的内容变了。<br>在Java中：传入函数参数的是原对象的引用的copy（指向的是同样的内存地址）; Java对象之间的赋值是把对象的引用 copy过去，因为引用指向的地址变了，所以对象的内容也变了。</p>
+<p>Golang的对象实践：</p>
+<pre><code>//User 定义User结构体
+type User struct {
+   Name string
+   Age int
+}
+
+// 定义一个全局的User
+var globalUser = User {
+   &quot;xiaoming&quot;,
+   28,
+}
+
+// modifyUser 定义一个函数，参数为User结构体“对象”，将全局globalUser指向传递过来的User结构体“对象”
+func modifyUser(user User) {
+   fmt.Printf(&quot;参数user的地址 = %p\n&quot;,&amp;user) 
+   fmt.Printf(&quot;globalUser修改前的地址 = %p\n&quot;,&amp;globalUser)
+   fmt.Println(&quot;globalUser修改前 = &quot;,globalUser)
+   // 修改指向
+   globalUser = user
+   fmt.Printf(&quot;globalUser修改后的地址 = %p\n&quot;,&amp;globalUser)
+   fmt.Println(&quot;globalUser修改后 = &quot;,globalUser)
+}
+
+func main() {
+   var u User = User {
+      &quot;xiaohong&quot;,
+      29,
+   }
+   fmt.Printf(&quot;将要传递的参数u的地址 = %p\n&quot;,&amp;u)
+   modifyUser(u)
+}
+
+// 执行结果
+将要传递的参数u的地址 = 0xc0000ac018
+参数user的地址 = 0xc0000ac030
+globalUser修改前的地址 = 0x113a270
+globalUser修改前 = {xiaoming 28}
+globalUser修改后的地址 = 0x113a270
+globalUuser修改后 = {xiaohong 29}
+</code></pre><p>Java的对象实践验证：</p>
+<pre><code>class User {
+    private String name;
+    private int age;
+
+    public User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+    public String getName() {
+        return name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public String print() {
+        return &quot;{name = &quot; + name + &quot;,age = &quot; + age + &quot;}&quot;;
+    }
+}
+
+public class Demo {
+    private static User globalUser = new User(&quot;xiaoming&quot;,28);
+    public static void modifyUser(User user) {
+        System.out.println(&quot;参数globalUser的地址 = &quot; + user);
+        System.out.println(&quot;globalUser修改前的地址 = &quot; + globalUser);
+        System.out.println(&quot;globalUser修改前 = &quot; + globalUser.print());
+        globalUser = user;
+        System.out.println(&quot;globalUser修改后的地址 = &quot; + globalUser);
+        System.out.println(&quot;globalUser修改后 = &quot; + globalUser.print());
+    }
+    public static void main(String[] args) {
+        User user = new User(&quot;xiaohong&quot;, 29);
+        System.out.println(&quot;将要传递的参数user的地址 = &quot; + user);
+        modifyUser(user);
+    }
+}
+
+//执行结果
+将要传递的参数user的地址 = com.example.demo.User@5abca1e0
+参数globalUser的地址 = com.example.demo.User@5abca1e0
+globalUser修改前的地址 = com.example.demo.User@2286778
+globalUser修改前 = {name = xiaoming,age = 28}
+globalUser修改后的地址 = com.example.demo.User@5abca1e0
+globalUser修改后 = {name = xiaohong,age = 29}
+</code></pre><h4 id="c、指针的区别"><a href="#c、指针的区别" class="headerlink" title="c、指针的区别"></a>c、指针的区别</h4><p>在Java中：如果传递了引用类型（对象、数组等）会复制其指针进行传递<br>在Golang中：必须要显式传递Person的指针，不然只是传递了该对象的一个副本。</p>
+<p>Golang的指针：</p>
+<pre><code>// User  定义User结构体
+type User struct {
+    Name string
+    Age  int
+}
+
+func main() {
+    p1 := User{
+        Name: &quot;xiaohong&quot;,
+        Age:  21,
+    }
+    changePerson(p1)
+    fmt.Println(p1.Name) // xiaohong
+    changePersonByPointer(&amp;p1)
+    fmt.Println(p1.Name) // xiaoming
+}
+
+func changePersonByPointer(user *User) {
+    user.Name = &quot;xiaoming&quot;
+}
+
+func changePerson(user User) {
+    user.Name = &quot;xiaoming&quot;
+}
+</code></pre>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/04/14/gorm基础学习(一)/" rel="prev" title="gorm基础学习(一)">
+      <i class="fa fa-chevron-left"></i> gorm基础学习(一)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一-、基础语法"><span class="nav-number">1.</span> <span class="nav-text">一 、基础语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、变量"><span class="nav-number">1.1.</span> <span class="nav-text">1、变量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a、变量声明及使用"><span class="nav-number">1.1.1.</span> <span class="nav-text">a、变量声明及使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#b、变量声明及初始化"><span class="nav-number">1.1.2.</span> <span class="nav-text">b、变量声明及初始化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、作用域规则"><span class="nav-number">1.2.</span> <span class="nav-text">2、作用域规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、逗号-ok-模式"><span class="nav-number">1.3.</span> <span class="nav-text">3、逗号 ok 模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、结构体、函数以及方法"><span class="nav-number">1.4.</span> <span class="nav-text">4、结构体、函数以及方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a、结构体声明及使用"><span class="nav-number">1.4.1.</span> <span class="nav-text">a、结构体声明及使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#b、函数和方法的区别"><span class="nav-number">1.4.2.</span> <span class="nav-text">b、函数和方法的区别</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5、值类型、引用类型以及指针"><span class="nav-number">1.5.</span> <span class="nav-text">5、值类型、引用类型以及指针</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a、数组对比"><span class="nav-number">1.5.1.</span> <span class="nav-text">a、数组对比</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b、对象对比"><span class="nav-number">1.6.</span> <span class="nav-text">b、对象对比</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#c、指针的区别"><span class="nav-number">1.6.1.</span> <span class="nav-text">c、指针的区别</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="zhengwuhao"
+      src="/image/image01.jpg">
+  <p class="site-author-name" itemprop="name">zhengwuhao</p>
+  <div class="site-description" itemprop="description">stay hungry stay foolish</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhengwuhao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.7.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="1、goroutine协程并发协程：coroutine。也叫轻量级线程。 与传统的系统级线程和进程相比，协程最大的优势在于“轻量级”。可以轻松创建上万个而不会导致系统资源衰竭。而线程和进程通常很难超过1万个。这也是协程别称“轻量级线程”的原因。 一个线程中可以有任意多个协程，但某一时刻只能有一个协程在运行，多个协程分享该线程分配到的计算机资源。 Go并发Go 在语言级别支持协程，叫goroutin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="goroutine">
+<meta property="og:url" content="http://yoursite.com/2024/04/13/goroutine/index.html">
+<meta property="og:site_name" content="WuHao">
+<meta property="og:description" content="1、goroutine协程并发协程：coroutine。也叫轻量级线程。 与传统的系统级线程和进程相比，协程最大的优势在于“轻量级”。可以轻松创建上万个而不会导致系统资源衰竭。而线程和进程通常很难超过1万个。这也是协程别称“轻量级线程”的原因。 一个线程中可以有任意多个协程，但某一时刻只能有一个协程在运行，多个协程分享该线程分配到的计算机资源。 Go并发Go 在语言级别支持协程，叫goroutin">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2024-04-14T10:49:44.309Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="goroutine">
+<meta name="twitter:description" content="1、goroutine协程并发协程：coroutine。也叫轻量级线程。 与传统的系统级线程和进程相比，协程最大的优势在于“轻量级”。可以轻松创建上万个而不会导致系统资源衰竭。而线程和进程通常很难超过1万个。这也是协程别称“轻量级线程”的原因。 一个线程中可以有任意多个协程，但某一时刻只能有一个协程在运行，多个协程分享该线程分配到的计算机资源。 Go并发Go 在语言级别支持协程，叫goroutin">
+
+<link rel="canonical" href="http://yoursite.com/2024/04/13/goroutine/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>goroutine | WuHao</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">WuHao</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2024/04/13/goroutine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/image/image01.jpg">
+      <meta itemprop="name" content="zhengwuhao">
+      <meta itemprop="description" content="stay hungry stay foolish">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WuHao">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          goroutine
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-04-13 21:56:01" itemprop="dateCreated datePublished" datetime="2024-04-13T21:56:01+08:00">2024-04-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-04-14 18:49:44" itemprop="dateModified" datetime="2024-04-14T18:49:44+08:00">2024-04-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="1、goroutine"><a href="#1、goroutine" class="headerlink" title="1、goroutine"></a>1、goroutine</h1><h2 id="协程并发"><a href="#协程并发" class="headerlink" title="协程并发"></a>协程并发</h2><p>协程：coroutine。也叫轻量级线程。</p>
+<p>与传统的系统级线程和进程相比，协程最大的优势在于“轻量级”。可以轻松创建上万个而不会导致系统资源衰竭。而线程和进程通常很难超过1万个。这也是协程别称“轻量级线程”的原因。</p>
+<p>一个线程中可以有任意多个协程，但某一时刻只能有一个协程在运行，多个协程分享该线程分配到的计算机资源。</p>
+<h2 id="Go并发"><a href="#Go并发" class="headerlink" title="Go并发"></a>Go并发</h2><p>Go 在语言级别支持协程，叫goroutine。Go 语言标准库提供的所有系统调用操作（包括所有同步IO操作），都会出让CPU给其他goroutine。这让轻量级线程的切换管理不依赖于系统的线程和进程，也不需要依赖于CPU的核心数量。</p>
+<p>Go语言为并发编程而内置的上层API基于顺序通信进程模型CSP(communicating sequential processes)。这就意味着显式锁都是可以避免的，因为Go通过相对安全的通道发送和接受数据以实现同步，这大大地简化了并发程序的编写。</p>
+<p>Go语言中的并发程序主要使用两种手段来实现。goroutine和channel。</p>
+<h2 id="什么是Goroutine"><a href="#什么是Goroutine" class="headerlink" title="什么是Goroutine"></a>什么是Goroutine</h2><p>oroutine是Go语言并行设计的核心，有人称之为go程。 Goroutine从量级上看很像协程，它比线程更小，十几个goroutine可能体现在底层就是五六个线程，Go语言内部帮你实现了这些goroutine之间的内存共享。执行goroutine只需极少的栈内存(大概是4~5KB)，当然会根据相应的数据伸缩。也正因为如此，可同时运行成千上万个并发任务。goroutine比thread更易用、更高效、更轻便。</p>
+<p>一般情况下，一个普通计算机跑几十个线程就有点负载过大了，但是同样的机器却可以轻松地让成百上千个goroutine进行资源竞争。</p>
+<h2 id="创建Goroutine"><a href="#创建Goroutine" class="headerlink" title="创建Goroutine"></a>创建Goroutine</h2><p>只需在函数调⽤语句前添加 go 关键字，就可创建并发执⾏单元。开发⼈员无需了解任何执⾏细节，调度器会自动将其安排到合适的系统线程上执行。</p>
+<p>在并发编程中，我们通常想将一个过程切分成几块，然后让每个goroutine各自负责一块工作，当一个程序启动时，主函数在一个单独的goroutine中运行，我们叫它main goroutine。新的goroutine会用go语句来创建。而go语言的并发设计，让我们很轻松就可以达成这一目的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"> </span><br><span class="line">import (</span><br><span class="line">    &quot;fmt&quot;</span><br><span class="line">    &quot;time&quot;</span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line">func newTask() &#123;</span><br><span class="line">    i := 0</span><br><span class="line">    for &#123;</span><br><span class="line">        i++</span><br><span class="line">        fmt.Printf(&quot;new goroutine: i = %d\n&quot;, i)</span><br><span class="line">        time.Sleep(1*time.Second) //延时1s</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">func main() &#123;</span><br><span class="line">    //创建一个 goroutine，启动另外一个任务</span><br><span class="line">    go newTask()</span><br><span class="line">    i := 0</span><br><span class="line">    //main goroutine 循环打印</span><br><span class="line">    for &#123;</span><br><span class="line">        i++</span><br><span class="line">        fmt.Printf(&quot;main goroutine: i = %d\n&quot;, i)</span><br><span class="line">        time.Sleep(1 * time.Second) //延时1s</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Goroutine特性"><a href="#Goroutine特性" class="headerlink" title="Goroutine特性"></a>Goroutine特性</h2><p>主goroutine退出后，其它的工作goroutine也会自动退出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"> </span><br><span class="line">import (</span><br><span class="line">&quot;fmt&quot;</span><br><span class="line">&quot;time&quot;</span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line">func newTask() &#123;</span><br><span class="line">    i := 0</span><br><span class="line">    for &#123;</span><br><span class="line">        i++</span><br><span class="line">        fmt.Printf(&quot;new goroutine: i = %d\n&quot;, i)</span><br><span class="line">        time.Sleep(1 * time.Second) //延时1s</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">func main() &#123;</span><br><span class="line">    //创建一个 goroutine，启动另外一个任务</span><br><span class="line">    go newTask()</span><br><span class="line"> </span><br><span class="line">    fmt.Println(&quot;main goroutine exit&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Goexit函数"><a href="#Goexit函数" class="headerlink" title="Goexit函数"></a>Goexit函数</h2><p>调用 runtime.Goexit() 将立即终止当前 goroutine 执⾏，调度器确保所有已注册 defer 延迟调用被执行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"> </span><br><span class="line">import (</span><br><span class="line">&quot;fmt&quot;</span><br><span class="line">&quot;runtime&quot;</span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line">func main() &#123;</span><br><span class="line">    go func() &#123;</span><br><span class="line">        defer fmt.Println(&quot;A.defer&quot;)</span><br><span class="line"> </span><br><span class="line">        func() &#123;</span><br><span class="line">            defer fmt.Println(&quot;B.defer&quot;)</span><br><span class="line">            runtime.Goexit() // 终止当前 goroutine, import &quot;runtime&quot;</span><br><span class="line">            fmt.Println(&quot;B&quot;) // 不会执行</span><br><span class="line">        &#125;()</span><br><span class="line"> </span><br><span class="line">        fmt.Println(&quot;A&quot;) // 不会执行</span><br><span class="line">    &#125;()       //不要忘记()</span><br><span class="line"> </span><br><span class="line">    //死循环，目的不让主goroutine结束</span><br><span class="line">    for &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2、channel"><a href="#2、channel" class="headerlink" title="2、channel"></a>2、channel</h2><p>channel是Go语言中的一个核心类型，可以把它看成管道。并发核心单元通过它就可以发送或者接收数据进行通讯，这在一定程度上又进一步降低了编程的难度。</p>
+<p>channel是一个数据类型，主要用来解决go程的同步问题以及go程之间数据共享（数据传递）的问题。</p>
+<p>goroutine运行在相同的地址空间，因此访问共享内存必须做好同步。goroutine 奉行通过通信来共享内存，而不是共享内存来通信。</p>
+<p>引⽤类型 channel可用于多个 goroutine 通讯。其内部实现了同步，确保并发安全。</p>
+<p>定义channel变量</p>
+<p>和map类似，channel也一个对应make创建的底层数据结构的引用。</p>
+<p>当我们复制一个channel或用于函数参数传递时，我们只是拷贝了一个channel引用，因此调用者和被调用者将引用同一个channel对象。和其它的引用类型一样，channel的零值也是nil。</p>
+<p>定义一个channel时，也需要定义发送到channel的值的类型。channel可以使用内置的make()函数来创建：</p>
+<p>chan是创建channel所需使用的关键字。Type 代表指定channel收发数据的类型。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make(chan Type)  //等价于make(chan Type, 0)</span><br><span class="line">make(chan Type, capacity)</span><br></pre></td></tr></table></figure>
+<p><strong>无缓冲的channel</strong></p>
+<p>无缓冲的通道（unbuffered channel）是指在接收前没有能力保存任何数据值的通道。</p>
+<p>这种类型的通道要求发送goroutine和接收goroutine同时准备好，才能完成发送和接收操作。否则，通道会导致先执行发送或接收操作的 goroutine 阻塞等待。</p>
+<p>这种对通道进行发送和接收的交互行为本身就是同步的。其中任意一个操作都无法离开另一个操作单独存在。</p>
+<p>阻塞：由于某种原因数据没有到达，当前go程（线程）持续处于等待状态，直到条件满足，才解除阻塞。</p>
+<p>同步：在两个或多个go程（线程）间，保持数据内容一致性的机制。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"> </span><br><span class="line">import (</span><br><span class="line">    &quot;fmt&quot;</span><br><span class="line">    &quot;time&quot;</span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line">func main() &#123;</span><br><span class="line">    c := make(chan int, 0) //创建无缓冲的通道 c </span><br><span class="line"> </span><br><span class="line">    //内置函数 len 返回未被读取的缓冲元素数量，cap 返回缓冲区大小</span><br><span class="line">    fmt.Printf(&quot;len(c)=%d, cap(c)=%d\n&quot;, len(c), cap(c))</span><br><span class="line"> </span><br><span class="line">    go func() &#123;</span><br><span class="line">        defer fmt.Println(&quot;子go程结束&quot;)</span><br><span class="line"> </span><br><span class="line">        for i := 0; i &lt; 3; i++ &#123;</span><br><span class="line">            c &lt;- i</span><br><span class="line">            fmt.Printf(&quot;子go程正在运行[%d]: len(c)=%d, cap(c)=%d\n&quot;, i, len(c), cap(c))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line"> </span><br><span class="line">    time.Sleep(2 * time.Second) //延时2s</span><br><span class="line"> </span><br><span class="line">    for i := 0; i &lt; 3; i++ &#123;</span><br><span class="line">        num := &lt;-c //从c中接收数据，并赋值给num</span><br><span class="line">        fmt.Println(&quot;num = &quot;, num)</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    fmt.Println(&quot;main进程结束&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>有缓冲的channel</strong></p>
+<p>有缓冲的通道（buffered channel）是一种在被接收前能存储一个或者多个数据值的通道。</p>
+<p>这种类型的通道并不强制要求 goroutine 之间必须同时完成发送和接收。通道会阻塞发送和接收动作的条件也不同。</p>
+<p>只有通道中没有要接收的值时，接收动作才会阻塞。</p>
+<p>只有通道没有可用缓冲区容纳被发送的值时，发送动作才会阻塞。</p>
+<p>这导致有缓冲的通道和无缓冲的通道之间的一个很大的不同：无缓冲的通道保证进行发送和接收的 goroutine 会在同一时间进行数据交换；有缓冲的通道没有这种保证。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line">    c := make(chan int, 3) //带缓冲的通道</span><br><span class="line"> </span><br><span class="line">    //内置函数 len 返回未被读取的缓冲元素数量， cap 返回缓冲区大小</span><br><span class="line">    fmt.Printf(&quot;len(c)=%d, cap(c)=%d\n&quot;, len(c), cap(c))</span><br><span class="line"> </span><br><span class="line">    go func() &#123;</span><br><span class="line">        defer fmt.Println(&quot;子go程结束&quot;)</span><br><span class="line"> </span><br><span class="line">        for i := 0; i &lt; 3; i++ &#123;</span><br><span class="line">            c &lt;- i</span><br><span class="line">            fmt.Printf(&quot;子go程正在运行[%d]: len(c)=%d, cap(c)=%d\n&quot;, i, len(c), cap(c))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line"> </span><br><span class="line">    time.Sleep(2 * time.Second) //延时2s</span><br><span class="line">    for i := 0; i &lt; 3; i++ &#123;</span><br><span class="line">        num := &lt;-c //从c中接收数据，并赋值给num</span><br><span class="line">        fmt.Println(&quot;num = &quot;, num)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(&quot;main进程结束&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3、Select"><a href="#3、Select" class="headerlink" title="3、Select"></a>3、Select</h2><p>select作用</p>
+<p>Go里面提供了一个关键字select，通过select可以监听channel上的数据流动。</p>
+<p>有时候我们希望能够借助channel发送或接收数据，并避免因为发送或者接收导致的阻塞，尤其是当channel没有准备好写或者读时。select语句就可以实现这样的功能。</p>
+<p>select的用法与switch语言非常类似，由select开始一个新的选择块，每个选择条件由case语句来描述。</p>
+<p>与switch语句相比，select有比较多的限制，其中最大的一条限制就是每个case语句里必须是一个IO操作，大致的结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">select &#123;</span><br><span class="line">case &lt;- chan1:</span><br><span class="line">    // 如果chan1成功读到数据，则进行该case处理语句</span><br><span class="line">case chan2 &lt;- 1:</span><br><span class="line">    // 如果成功向chan2写入数据，则进行该case处理语句</span><br><span class="line">default:</span><br><span class="line">    // 如果上面都没有成功，则进入default处理流程</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在一个select语句中，Go语言会按顺序从头至尾评估每一个发送和接收的语句。</p>
+<p>如果其中的任意一语句可以继续执行(即没有被阻塞)，那么就从那些可以执行的语句中任意选择一条来使用。</p>
+<p>如果没有任意一条语句可以执行(即所有的通道都被阻塞)，那么有两种可能的情况：</p>
+<p>l 如果给出了default语句，那么就会执行default语句，同时程序的执行会从select语句后的语句中恢复。</p>
+<p>l 如果没有default语句，那么select语句将被阻塞，直到至少有一个通信可以进行下去。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"> </span><br><span class="line">import (</span><br><span class="line">    &quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line">func fibonacci(c, quit chan int) &#123;</span><br><span class="line">    x, y := 1, 1</span><br><span class="line">    for &#123;</span><br><span class="line">        select &#123;</span><br><span class="line">        case c &lt;- x:</span><br><span class="line">            x, y = y, x+y</span><br><span class="line">        case &lt;-quit:</span><br><span class="line">            fmt.Println(&quot;quit&quot;)</span><br><span class="line">            return</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">func main() &#123;</span><br><span class="line">    c := make(chan int)</span><br><span class="line">    quit := make(chan int)</span><br><span class="line"> </span><br><span class="line">    go func() &#123;</span><br><span class="line">        for i := 0; i &lt; 6; i++ &#123;</span><br><span class="line">            fmt.Println(&lt;-c)</span><br><span class="line">        &#125;</span><br><span class="line">        quit &lt;- 0</span><br><span class="line">    &#125;()</span><br><span class="line"> </span><br><span class="line">    fibonacci(c, quit)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/04/13/slice和map/" rel="prev" title="slice">
+      <i class="fa fa-chevron-left"></i> slice
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/04/14/部署go-admin/" rel="next" title="部署go-admin">
+      部署go-admin <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1、goroutine"><span class="nav-number">1.</span> <span class="nav-text">1、goroutine</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#协程并发"><span class="nav-number">1.1.</span> <span class="nav-text">协程并发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Go并发"><span class="nav-number">1.2.</span> <span class="nav-text">Go并发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是Goroutine"><span class="nav-number">1.3.</span> <span class="nav-text">什么是Goroutine</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建Goroutine"><span class="nav-number">1.4.</span> <span class="nav-text">创建Goroutine</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Goroutine特性"><span class="nav-number">1.5.</span> <span class="nav-text">Goroutine特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Goexit函数"><span class="nav-number">1.6.</span> <span class="nav-text">Goexit函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、channel"><span class="nav-number">1.7.</span> <span class="nav-text">2、channel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、Select"><span class="nav-number">1.8.</span> <span class="nav-text">3、Select</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="zhengwuhao"
+      src="/image/image01.jpg">
+  <p class="site-author-name" itemprop="name">zhengwuhao</p>
+  <div class="site-description" itemprop="description">stay hungry stay foolish</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zhengwuhao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
